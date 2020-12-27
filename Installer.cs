@@ -13,28 +13,22 @@ namespace UwpInstaller
 
         public void Run()
         {
-            var cerPath = GetExetension(_cerExtension);
-            if (string.IsNullOrEmpty(cerPath))
-            {
-                throw new FileNotFoundException("未找到证书");
-            }
+            var cerPath = GetFilePath(_cerExtension);
+            if (string.IsNullOrEmpty(cerPath)) throw new FileNotFoundException("未找到证书");
 
-            var bundlePath = GetExetension(_bundleExetension);
-            if (string.IsNullOrEmpty(bundlePath))
-            {
-                throw new FileNotFoundException("未找到安装包");
-            }
+            var bundlePath = GetFilePath(_bundleExetension);
+            if (string.IsNullOrEmpty(bundlePath)) throw new FileNotFoundException("未找到安装包");
 
             InstallCertifacate(cerPath);
             OpenInstaller(bundlePath);
         }
 
-        private string GetExetension(string[] exetensions)
+        private string GetFilePath(string[] extensions)
         {
-            foreach (string exetension in exetensions)
+            foreach (string extension in extensions)
             {
                 var path = Directory.GetFiles(Environment.CurrentDirectory)
-                    .Where((name) => name.LastIndexOf(exetension) == name.Length - exetension.Length)
+                    .Where((name) => name.LastIndexOf(extension) == name.Length - extension.Length)
                     .FirstOrDefault();
                 if (!string.IsNullOrEmpty(path)) return path;
             }
@@ -44,20 +38,22 @@ namespace UwpInstaller
 
         private void OpenInstaller(string path)
         {
-            Process MyProcess = new Process();
-            MyProcess.StartInfo.FileName = path;
-            MyProcess.StartInfo.Verb = "Open";
-            MyProcess.StartInfo.CreateNoWindow = true;
-            MyProcess.Start();
+            var process = new Process();
+            process.StartInfo.FileName = path;
+            process.StartInfo.Verb = "Open";
+            process.StartInfo.CreateNoWindow = true;
+            process.Start();
         }
 
+        /// <summary>
+        /// 安装CA的根证书到受信任根证书颁发机构
+        /// </summary>
+        /// <param name="path"></param>
         private void InstallCertifacate(string path)
         {
-            //安装CA的根证书到受信任根证书颁发机构
-            X509Certificate2 certificate = new X509Certificate2(path);
-            X509Store store = new X509Store(StoreName.Root, StoreLocation.LocalMachine);
+            var store = new X509Store(StoreName.Root, StoreLocation.LocalMachine);
             store.Open(OpenFlags.ReadWrite);
-            store.Add(certificate);
+            store.Add(new X509Certificate2(path));
             store.Close();
         }
     }

@@ -9,7 +9,7 @@ namespace UwpInstaller
     public class Installer
     {
         private readonly string[] _cerExtension = { ".cer" };
-        private readonly string[] _bundleExetension = { ".msixbundle", ".appxbundle", "appx" };
+        private readonly string[] _bundleExetension = { ".msixbundle", ".appxbundle", ".appx" };
 
         public void Run()
         {
